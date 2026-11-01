@@ -1,0 +1,2502 @@
+[
+  {
+    "id": "CR-0019",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 2; }\nRust:\nfn f(x: i32) -> i32 { x + 2 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust a besoin de &mut x",
+      "Rust exige un point-virgule après la dernière expression",
+      "C peut omettre return ici",
+      "Les deux retournent x + 2"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Les deux retournent x + 2",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0045",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(7 * sizeof *p);\nRust:\nlet v = vec![0_i32; 7];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Les deux nécessitent free",
+      "Rust refuse toute allocation dynamique",
+      "malloc initialise toujours les éléments à zéro",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0003",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot7\"; char *b = a;\nRust:\nlet a = String::from(\"mot7\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En Rust, String est automatiquement clonée",
+      "En C, l’affectation est interdite",
+      "En C, a est toujours copié en profondeur"
+    ],
+    "correct_answer": 0,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0036",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[6] = {0}; a[6] = 9;\nRust:\nlet a = vec![0; 6]; println!(\"{}\", a[6]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux affichent zéro",
+      "Les deux agrandissent le tableau",
+      "Le C est toujours détecté à la compilation",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic"
+    ],
+    "correct_answer": 3,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0026",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[7] = {0}; a[7] = 11;\nRust:\nlet a = vec![0; 7]; println!(\"{}\", a[7]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Le C est toujours détecté à la compilation",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Les deux agrandissent le tableau",
+      "Les deux affichent zéro"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0041",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 30; int *p = &n; *p += 9;\nRust:\nlet mut n = 30; let p = &mut n; *p += 9;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux copient n dans p",
+      "Les deux nécessitent malloc",
+      "Rust déplace n avec &mut",
+      "Les deux modifient la valeur originale via un accès indirect"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0099",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 4; }\nRust:\nfn f(x: i32) -> i32 { x + 4 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust exige un point-virgule après la dernière expression",
+      "Les deux retournent x + 4",
+      "Rust a besoin de &mut x",
+      "C peut omettre return ici"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Les deux retournent x + 4",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0044",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 33; if (x) { /* vrai */ }\nRust:\nlet x = 33; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Les deux déclenchent un segfault",
+      "Les deux sont valides",
+      "Seul Rust accepte les entiers comme booléens",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0011",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 13; int *p = &n; *p += 15;\nRust:\nlet mut n = 13; let p = &mut n; *p += 15;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux copient n dans p",
+      "Les deux nécessitent malloc",
+      "Rust déplace n avec &mut",
+      "Les deux modifient la valeur originale via un accès indirect"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0027",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {29}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 29 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "&q.x",
+      "q::x",
+      "q.x",
+      "q->x"
+    ],
+    "correct_answer": 3,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0043",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot6\"; char *b = a;\nRust:\nlet a = String::from(\"mot6\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En C, a est toujours copié en profondeur",
+      "En Rust, String est automatiquement clonée",
+      "En C, l’affectation est interdite"
+    ],
+    "correct_answer": 0,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0018",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 32; int *p = &x; int *q = &x;\nRust:\nlet mut x = 32; let p = &mut x; let q = &mut x; *p += 15; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust effectue malloc pour p et q",
+      "Rust autorise tous les alias mutables",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+      "C interdit plusieurs pointeurs sur x"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0083",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot1\"; char *b = a;\nRust:\nlet a = String::from(\"mot1\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, a est toujours copié en profondeur",
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En C, l’affectation est interdite",
+      "En Rust, String est automatiquement clonée"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0074",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 9; if (x) { /* vrai */ }\nRust:\nlet x = 9; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+      "Les deux sont valides",
+      "Les deux déclenchent un segfault",
+      "Seul Rust accepte les entiers comme booléens"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0065",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(1 * sizeof *p);\nRust:\nlet v = vec![0_i32; 1];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Rust refuse toute allocation dynamique",
+      "malloc initialise toujours les éléments à zéro",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+      "Les deux nécessitent free"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0078",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 25; int *p = &x; int *q = &x;\nRust:\nlet mut x = 25; let p = &mut x; let q = &mut x; *p += 11; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust autorise tous les alias mutables",
+      "Rust effectue malloc pour p et q",
+      "C interdit plusieurs pointeurs sur x",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0042",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 6; }\nRust:\nfn f(mut x: i32) { x += 6; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur",
+      "n augmente dans les deux cas",
+      "n augmente seulement en Rust"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0072",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 11; }\nRust:\nfn f(mut x: i32) { x += 11; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "n augmente seulement en Rust",
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur",
+      "n augmente dans les deux cas"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0056",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[1] = {0}; a[1] = 26;\nRust:\nlet a = vec![0; 1]; println!(\"{}\", a[1]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux agrandissent le tableau",
+      "Les deux affichent zéro",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Le C est toujours détecté à la compilation"
+    ],
+    "correct_answer": 2,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0016",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[8] = {0}; a[8] = 33;\nRust:\nlet a = vec![0; 8]; println!(\"{}\", a[8]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux agrandissent le tableau",
+      "Le C est toujours détecté à la compilation",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Les deux affichent zéro"
+    ],
+    "correct_answer": 2,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0097",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {13}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 13 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "q.x",
+      "&q.x",
+      "q->x",
+      "q::x"
+    ],
+    "correct_answer": 2,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0088",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 22; int *p = &x; int *q = &x;\nRust:\nlet mut x = 22; let p = &mut x; let q = &mut x; *p += 11; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust effectue malloc pour p et q",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+      "Rust autorise tous les alias mutables",
+      "C interdit plusieurs pointeurs sur x"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0032",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 9; }\nRust:\nfn f(mut x: i32) { x += 9; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "n augmente dans les deux cas",
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur",
+      "n augmente seulement en Rust"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0064",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 8; if (x) { /* vrai */ }\nRust:\nlet x = 8; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Seul Rust accepte les entiers comme booléens",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+      "Les deux déclenchent un segfault",
+      "Les deux sont valides"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0068",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 31; int *p = &x; int *q = &x;\nRust:\nlet mut x = 31; let p = &mut x; let q = &mut x; *p += 5; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust autorise tous les alias mutables",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+      "C interdit plusieurs pointeurs sur x",
+      "Rust effectue malloc pour p et q"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0059",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 13; }\nRust:\nfn f(x: i32) -> i32 { x + 13 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Les deux retournent x + 13",
+      "C peut omettre return ici",
+      "Rust exige un point-virgule après la dernière expression",
+      "Rust a besoin de &mut x"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Les deux retournent x + 13",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0087",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {16}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 16 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "&q.x",
+      "q::x",
+      "q->x",
+      "q.x"
+    ],
+    "correct_answer": 2,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0079",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 3; }\nRust:\nfn f(x: i32) -> i32 { x + 3 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust a besoin de &mut x",
+      "Rust exige un point-virgule après la dernière expression",
+      "Les deux retournent x + 3",
+      "C peut omettre return ici"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Les deux retournent x + 3",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0071",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 20; int *p = &n; *p += 7;\nRust:\nlet mut n = 20; let p = &mut n; *p += 7;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux modifient la valeur originale via un accès indirect",
+      "Les deux copient n dans p",
+      "Rust déplace n avec &mut",
+      "Les deux nécessitent malloc"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0004",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 22; if (x) { /* vrai */ }\nRust:\nlet x = 22; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Les deux déclenchent un segfault",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+      "Les deux sont valides",
+      "Seul Rust accepte les entiers comme booléens"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0067",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {8}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 8 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "q::x",
+      "q->x",
+      "q.x",
+      "&q.x"
+    ],
+    "correct_answer": 1,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0035",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(3 * sizeof *p);\nRust:\nlet v = vec![0_i32; 3];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "malloc initialise toujours les éléments à zéro",
+      "Les deux nécessitent free",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+      "Rust refuse toute allocation dynamique"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0008",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 14; int *p = &x; int *q = &x;\nRust:\nlet mut x = 14; let p = &mut x; let q = &mut x; *p += 15; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "C interdit plusieurs pointeurs sur x",
+      "Rust effectue malloc pour p et q",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+      "Rust autorise tous les alias mutables"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0002",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 15; }\nRust:\nfn f(mut x: i32) { x += 15; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "n augmente dans les deux cas",
+      "n augmente seulement en Rust",
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0020",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "5",
+      "La taille du pointeur",
+      "4",
+      "Elles sont incompatibles"
+    ],
+    "correct_answer": 2,
+    "correct_option": "4",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 4 caractères ASCII, ces deux résultats valent 4.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0094",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 3; if (x) { /* vrai */ }\nRust:\nlet x = 3; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Les deux sont valides",
+      "Les deux déclenchent un segfault",
+      "Seul Rust accepte les entiers comme booléens",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0069",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 11; }\nRust:\nfn f(x: i32) -> i32 { x + 11 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Les deux retournent x + 11",
+      "C peut omettre return ici",
+      "Rust a besoin de &mut x",
+      "Rust exige un point-virgule après la dernière expression"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Les deux retournent x + 11",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0013",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot9\"; char *b = a;\nRust:\nlet a = String::from(\"mot9\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En C, a est toujours copié en profondeur",
+      "En C, l’affectation est interdite",
+      "En Rust, String est automatiquement clonée"
+    ],
+    "correct_answer": 0,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0057",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {39}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 39 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "&q.x",
+      "q.x",
+      "q::x",
+      "q->x"
+    ],
+    "correct_answer": 3,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0046",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[6] = {0}; a[6] = 26;\nRust:\nlet a = vec![0; 6]; println!(\"{}\", a[6]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux affichent zéro",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Les deux agrandissent le tableau",
+      "Le C est toujours détecté à la compilation"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0051",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 18; int *p = &n; *p += 9;\nRust:\nlet mut n = 18; let p = &mut n; *p += 9;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux copient n dans p",
+      "Les deux nécessitent malloc",
+      "Rust déplace n avec &mut",
+      "Les deux modifient la valeur originale via un accès indirect"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0095",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(4 * sizeof *p);\nRust:\nlet v = vec![0_i32; 4];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Les deux nécessitent free",
+      "Rust refuse toute allocation dynamique",
+      "malloc initialise toujours les éléments à zéro",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0098",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 30; int *p = &x; int *q = &x;\nRust:\nlet mut x = 30; let p = &mut x; let q = &mut x; *p += 14; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust effectue malloc pour p et q",
+      "Rust autorise tous les alias mutables",
+      "C interdit plusieurs pointeurs sur x",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0084",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 12; if (x) { /* vrai */ }\nRust:\nlet x = 12; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Les deux déclenchent un segfault",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+      "Les deux sont valides",
+      "Seul Rust accepte les entiers comme booléens"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0034",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 37; if (x) { /* vrai */ }\nRust:\nlet x = 37; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Les deux sont valides",
+      "Seul Rust accepte les entiers comme booléens",
+      "Les deux déclenchent un segfault",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0058",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 30; int *p = &x; int *q = &x;\nRust:\nlet mut x = 30; let p = &mut x; let q = &mut x; *p += 10; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust autorise tous les alias mutables",
+      "C interdit plusieurs pointeurs sur x",
+      "Rust effectue malloc pour p et q",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0010",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxxxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxxxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "5",
+      "6",
+      "La taille du pointeur",
+      "Elles sont incompatibles"
+    ],
+    "correct_answer": 0,
+    "correct_option": "5",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 5 caractères ASCII, ces deux résultats valent 5.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0040",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "4",
+      "Elles sont incompatibles",
+      "La taille du pointeur",
+      "3"
+    ],
+    "correct_answer": 3,
+    "correct_option": "3",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 3 caractères ASCII, ces deux résultats valent 3.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0070",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxxxxxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxxxxxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "La taille du pointeur",
+      "7",
+      "Elles sont incompatibles",
+      "8"
+    ],
+    "correct_answer": 1,
+    "correct_option": "7",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 7 caractères ASCII, ces deux résultats valent 7.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0022",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 3; }\nRust:\nfn f(mut x: i32) { x += 3; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "n augmente seulement en Rust",
+      "Les deux signatures demandent un pointeur",
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "n augmente dans les deux cas"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0053",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot4\"; char *b = a;\nRust:\nlet a = String::from(\"mot4\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, a est toujours copié en profondeur",
+      "En Rust, String est automatiquement clonée",
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En C, l’affectation est interdite"
+    ],
+    "correct_answer": 2,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0031",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 28; int *p = &n; *p += 13;\nRust:\nlet mut n = 28; let p = &mut n; *p += 13;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux modifient la valeur originale via un accès indirect",
+      "Les deux copient n dans p",
+      "Rust déplace n avec &mut",
+      "Les deux nécessitent malloc"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0039",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 10; }\nRust:\nfn f(x: i32) -> i32 { x + 10 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust a besoin de &mut x",
+      "Rust exige un point-virgule après la dernière expression",
+      "Les deux retournent x + 10",
+      "C peut omettre return ici"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Les deux retournent x + 10",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0066",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[6] = {0}; a[6] = 3;\nRust:\nlet a = vec![0; 6]; println!(\"{}\", a[6]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux agrandissent le tableau",
+      "Le C est toujours détecté à la compilation",
+      "Les deux affichent zéro",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic"
+    ],
+    "correct_answer": 3,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0092",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 8; }\nRust:\nfn f(mut x: i32) { x += 8; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "n augmente dans les deux cas",
+      "n augmente seulement en Rust",
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0024",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 16; if (x) { /* vrai */ }\nRust:\nlet x = 16; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+      "Les deux déclenchent un segfault",
+      "Les deux sont valides",
+      "Seul Rust accepte les entiers comme booléens"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0060",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxxxxxxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxxxxxxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "La taille du pointeur",
+      "8",
+      "Elles sont incompatibles",
+      "9"
+    ],
+    "correct_answer": 1,
+    "correct_option": "8",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 8 caractères ASCII, ces deux résultats valent 8.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0025",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(5 * sizeof *p);\nRust:\nlet v = vec![0_i32; 5];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+      "malloc initialise toujours les éléments à zéro",
+      "Rust refuse toute allocation dynamique",
+      "Les deux nécessitent free"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0086",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[9] = {0}; a[9] = 30;\nRust:\nlet a = vec![0; 9]; println!(\"{}\", a[9]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux affichent zéro",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Les deux agrandissent le tableau",
+      "Le C est toujours détecté à la compilation"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0080",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxxxxxxxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxxxxxxxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "10",
+      "Elles sont incompatibles",
+      "La taille du pointeur",
+      "9"
+    ],
+    "correct_answer": 3,
+    "correct_option": "9",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 9 caractères ASCII, ces deux résultats valent 9.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0007",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {30}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 30 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "&q.x",
+      "q->x",
+      "q::x",
+      "q.x"
+    ],
+    "correct_answer": 1,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0028",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 40; int *p = &x; int *q = &x;\nRust:\nlet mut x = 40; let p = &mut x; let q = &mut x; *p += 11; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "C interdit plusieurs pointeurs sur x",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+      "Rust autorise tous les alias mutables",
+      "Rust effectue malloc pour p et q"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0062",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 4; }\nRust:\nfn f(mut x: i32) { x += 4; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "n augmente dans les deux cas",
+      "n augmente seulement en Rust",
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0073",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot2\"; char *b = a;\nRust:\nlet a = String::from(\"mot2\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, l’affectation est interdite",
+      "En Rust, String est automatiquement clonée",
+      "En C, a est toujours copié en profondeur",
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire"
+    ],
+    "correct_answer": 3,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0029",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 6; }\nRust:\nfn f(x: i32) -> i32 { x + 6 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust exige un point-virgule après la dernière expression",
+      "Rust a besoin de &mut x",
+      "C peut omettre return ici",
+      "Les deux retournent x + 6"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Les deux retournent x + 6",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0023",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot8\"; char *b = a;\nRust:\nlet a = String::from(\"mot8\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, a est toujours copié en profondeur",
+      "En C, l’affectation est interdite",
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En Rust, String est automatiquement clonée"
+    ],
+    "correct_answer": 2,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0061",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 37; int *p = &n; *p += 3;\nRust:\nlet mut n = 37; let p = &mut n; *p += 3;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux copient n dans p",
+      "Les deux modifient la valeur originale via un accès indirect",
+      "Les deux nécessitent malloc",
+      "Rust déplace n avec &mut"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0033",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot5\"; char *b = a;\nRust:\nlet a = String::from(\"mot5\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En Rust, String est automatiquement clonée",
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En C, a est toujours copié en profondeur",
+      "En C, l’affectation est interdite"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0055",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(9 * sizeof *p);\nRust:\nlet v = vec![0_i32; 9];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "malloc initialise toujours les éléments à zéro",
+      "Les deux nécessitent free",
+      "Rust refuse toute allocation dynamique",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0090",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "2",
+      "3",
+      "Elles sont incompatibles",
+      "La taille du pointeur"
+    ],
+    "correct_answer": 0,
+    "correct_option": "2",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 2 caractères ASCII, ces deux résultats valent 2.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0047",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {33}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 33 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "q->x",
+      "q.x",
+      "&q.x",
+      "q::x"
+    ],
+    "correct_answer": 0,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0021",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 14; int *p = &n; *p += 11;\nRust:\nlet mut n = 14; let p = &mut n; *p += 11;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux nécessitent malloc",
+      "Les deux modifient la valeur originale via un accès indirect",
+      "Rust déplace n avec &mut",
+      "Les deux copient n dans p"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0100",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "4",
+      "3",
+      "La taille du pointeur",
+      "Elles sont incompatibles"
+    ],
+    "correct_answer": 1,
+    "correct_option": "3",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 3 caractères ASCII, ces deux résultats valent 3.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0030",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"xxxxxx\"; /* strlen(s) */\nRust:\nlet s = String::from(\"xxxxxx\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "6",
+      "La taille du pointeur",
+      "Elles sont incompatibles",
+      "7"
+    ],
+    "correct_answer": 0,
+    "correct_option": "6",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 6 caractères ASCII, ces deux résultats valent 6.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0005",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(2 * sizeof *p);\nRust:\nlet v = vec![0_i32; 2];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Rust refuse toute allocation dynamique",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+      "Les deux nécessitent free",
+      "malloc initialise toujours les éléments à zéro"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0077",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {7}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 7 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "q->x",
+      "&q.x",
+      "q.x",
+      "q::x"
+    ],
+    "correct_answer": 0,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0063",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot3\"; char *b = a;\nRust:\nlet a = String::from(\"mot3\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En Rust, String est automatiquement clonée",
+      "En C, a est toujours copié en profondeur",
+      "En C, l’affectation est interdite",
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire"
+    ],
+    "correct_answer": 3,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0075",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(4 * sizeof *p);\nRust:\nlet v = vec![0_i32; 4];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Les deux nécessitent free",
+      "Rust refuse toute allocation dynamique",
+      "malloc initialise toujours les éléments à zéro",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0050",
+    "language": "comparison",
+    "topic": "strings",
+    "subtopic": "length",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar s[] = \"x\"; /* strlen(s) */\nRust:\nlet s = String::from(\"x\"); /* s.len() */",
+    "question": "Pour ce texte ASCII, que valent les deux longueurs ?",
+    "options": [
+      "1",
+      "2",
+      "La taille du pointeur",
+      "Elles sont incompatibles"
+    ],
+    "correct_answer": 0,
+    "correct_option": "1",
+    "explanation": "strlen compte les octets avant le terminateur nul, et String::len compte les octets UTF-8. Pour 1 caractères ASCII, ces deux résultats valent 1.",
+    "tags": [
+      "strings",
+      "length"
+    ],
+    "variant_group": "cr_length",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0049",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 5; }\nRust:\nfn f(x: i32) -> i32 { x + 5 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "C peut omettre return ici",
+      "Rust a besoin de &mut x",
+      "Les deux retournent x + 5",
+      "Rust exige un point-virgule après la dernière expression"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Les deux retournent x + 5",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0012",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 5; }\nRust:\nfn f(mut x: i32) { x += 5; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur",
+      "n augmente dans les deux cas",
+      "n augmente seulement en Rust"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0081",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 26; int *p = &n; *p += 6;\nRust:\nlet mut n = 26; let p = &mut n; *p += 6;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Rust déplace n avec &mut",
+      "Les deux nécessitent malloc",
+      "Les deux copient n dans p",
+      "Les deux modifient la valeur originale via un accès indirect"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0015",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(8 * sizeof *p);\nRust:\nlet v = vec![0_i32; 8];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Rust refuse toute allocation dynamique",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+      "Les deux nécessitent free",
+      "malloc initialise toujours les éléments à zéro"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0093",
+    "language": "comparison",
+    "topic": "ownership",
+    "subtopic": "string_move",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nchar *a = \"mot5\"; char *b = a;\nRust:\nlet a = String::from(\"mot5\"); let b = a;",
+    "question": "Quelle différence est essentielle ?",
+    "options": [
+      "En C, a est toujours copié en profondeur",
+      "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+      "En Rust, String est automatiquement clonée",
+      "En C, l’affectation est interdite"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C, deux pointeurs peuvent désigner le même littéral ; en Rust, la String change de propriétaire",
+    "explanation": "L’affectation de char* recopie une adresse en C. L’affectation de String effectue un move en Rust car String n’implémente pas Copy.",
+    "tags": [
+      "ownership",
+      "string_move"
+    ],
+    "variant_group": "cr_string_move",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0082",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 12; }\nRust:\nfn f(mut x: i32) { x += 12; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "n augmente seulement en Rust",
+      "n augmente dans les deux cas",
+      "Les deux signatures demandent un pointeur",
+      "Aucun : l’entier est passé par valeur dans les deux cas"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0038",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 30; int *p = &x; int *q = &x;\nRust:\nlet mut x = 30; let p = &mut x; let q = &mut x; *p += 2; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+      "Rust effectue malloc pour p et q",
+      "C interdit plusieurs pointeurs sur x",
+      "Rust autorise tous les alias mutables"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0054",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 30; if (x) { /* vrai */ }\nRust:\nlet x = 30; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Les deux déclenchent un segfault",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+      "Seul Rust accepte les entiers comme booléens",
+      "Les deux sont valides"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0009",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 15; }\nRust:\nfn f(x: i32) -> i32 { x + 15 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust exige un point-virgule après la dernière expression",
+      "C peut omettre return ici",
+      "Rust a besoin de &mut x",
+      "Les deux retournent x + 15"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Les deux retournent x + 15",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0006",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[4] = {0}; a[4] = 11;\nRust:\nlet a = vec![0; 4]; println!(\"{}\", a[4]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux agrandissent le tableau",
+      "Le C est toujours détecté à la compilation",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Les deux affichent zéro"
+    ],
+    "correct_answer": 2,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0014",
+    "language": "comparison",
+    "topic": "control_flow",
+    "subtopic": "integer_condition",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 13; if (x) { /* vrai */ }\nRust:\nlet x = 13; if x { /* vrai */ }",
+    "question": "Que se passe-t-il ?",
+    "options": [
+      "Les deux sont valides",
+      "Les deux déclenchent un segfault",
+      "Seul Rust accepte les entiers comme booléens",
+      "Le C est valide ; le Rust ne compile pas car x n’est pas bool"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le C est valide ; le Rust ne compile pas car x n’est pas bool",
+    "explanation": "En C, un entier non nul est une condition vraie. Rust exige un bool explicite, par exemple x != 0.",
+    "tags": [
+      "control_flow",
+      "integer_condition"
+    ],
+    "variant_group": "cr_integer_condition",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0037",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {4}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 4 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "q.x",
+      "&q.x",
+      "q->x",
+      "q::x"
+    ],
+    "correct_answer": 2,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0001",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 6; int *p = &n; *p += 4;\nRust:\nlet mut n = 6; let p = &mut n; *p += 4;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux modifient la valeur originale via un accès indirect",
+      "Rust déplace n avec &mut",
+      "Les deux copient n dans p",
+      "Les deux nécessitent malloc"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0085",
+    "language": "comparison",
+    "topic": "memory",
+    "subtopic": "allocation",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint *p = malloc(6 * sizeof *p);\nRust:\nlet v = vec![0_i32; 6];",
+    "question": "Quelle différence est correcte ?",
+    "options": [
+      "Rust refuse toute allocation dynamique",
+      "Les deux nécessitent free",
+      "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+      "malloc initialise toujours les éléments à zéro"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Le Vec gère automatiquement sa libération ; le bloc malloc doit être libéré par free",
+    "explanation": "Rust utilise ici la propriété et Drop pour libérer le stockage du Vec. Le bloc obtenu par malloc en C exige une libération explicite (si allocation réussie).",
+    "tags": [
+      "memory",
+      "allocation"
+    ],
+    "variant_group": "cr_allocation",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0096",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[9] = {0}; a[9] = 33;\nRust:\nlet a = vec![0; 9]; println!(\"{}\", a[9]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Les deux agrandissent le tableau",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Les deux affichent zéro",
+      "Le C est toujours détecté à la compilation"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0052",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "value_copy",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nvoid f(int x) { x += 7; }\nRust:\nfn f(mut x: i32) { x += 7; }",
+    "question": "Si la fonction reçoit un entier n, quel effet a-t-elle sur n ?",
+    "options": [
+      "Aucun : l’entier est passé par valeur dans les deux cas",
+      "Les deux signatures demandent un pointeur",
+      "n augmente dans les deux cas",
+      "n augmente seulement en Rust"
+    ],
+    "correct_answer": 0,
+    "correct_option": "Aucun : l’entier est passé par valeur dans les deux cas",
+    "explanation": "L’entier i32 est Copy en Rust et int est passé par valeur en C. Le paramètre local est indépendant de la variable du site d’appel.",
+    "tags": [
+      "functions",
+      "value_copy"
+    ],
+    "variant_group": "cr_value_copy",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0048",
+    "language": "comparison",
+    "topic": "borrowing",
+    "subtopic": "mut_exclusive",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint x = 23; int *p = &x; int *q = &x;\nRust:\nlet mut x = 23; let p = &mut x; let q = &mut x; *p += 2; *q += 1;",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "Rust effectue malloc pour p et q",
+      "Rust autorise tous les alias mutables",
+      "C interdit plusieurs pointeurs sur x",
+      "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent"
+    ],
+    "correct_answer": 3,
+    "correct_option": "Le code C permet les alias ; le Rust refuse des emprunts mutables qui se chevauchent",
+    "explanation": "C autorise plusieurs pointeurs vers le même objet. Rust refuse la coexistence d’emprunts &mut actifs sur la même valeur.",
+    "tags": [
+      "borrowing",
+      "mut_exclusive"
+    ],
+    "variant_group": "cr_mut_exclusive",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0017",
+    "language": "comparison",
+    "topic": "structures",
+    "subtopic": "field_syntax",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\ntypedef struct { int x; } P; P p = {15}; P *q = &p;\nRust:\nstruct P { x: i32 } let p = P { x: 15 };",
+    "question": "Quel accès C lit un champ via q ?",
+    "options": [
+      "&q.x",
+      "q::x",
+      "q->x",
+      "q.x"
+    ],
+    "correct_answer": 2,
+    "correct_option": "q->x",
+    "explanation": "En C, un pointeur vers une structure utilise -> (ou (*q).x). En Rust, l’accès aux champs utilise généralement le point et l’autodéréférencement.",
+    "tags": [
+      "structures",
+      "field_syntax"
+    ],
+    "variant_group": "cr_field_syntax",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0091",
+    "language": "comparison",
+    "topic": "pointers",
+    "subtopic": "mutable_borrow",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint n = 33; int *p = &n; *p += 7;\nRust:\nlet mut n = 33; let p = &mut n; *p += 7;",
+    "question": "Quel principe est commun aux deux extraits ?",
+    "options": [
+      "Les deux nécessitent malloc",
+      "Les deux modifient la valeur originale via un accès indirect",
+      "Rust déplace n avec &mut",
+      "Les deux copient n dans p"
+    ],
+    "correct_answer": 1,
+    "correct_option": "Les deux modifient la valeur originale via un accès indirect",
+    "explanation": "En C, le pointeur contient l’adresse de n ; en Rust, &mut n crée un emprunt mutable. Les deux écritures *p modifient n.",
+    "tags": [
+      "pointers",
+      "mutable_borrow"
+    ],
+    "variant_group": "cr_mutable_borrow",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0089",
+    "language": "comparison",
+    "topic": "functions",
+    "subtopic": "return_value",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint f(int x) { return x + 12; }\nRust:\nfn f(x: i32) -> i32 { x + 12 }",
+    "question": "Quelle affirmation est vraie ?",
+    "options": [
+      "C peut omettre return ici",
+      "Rust exige un point-virgule après la dernière expression",
+      "Les deux retournent x + 12",
+      "Rust a besoin de &mut x"
+    ],
+    "correct_answer": 2,
+    "correct_option": "Les deux retournent x + 12",
+    "explanation": "C exprime le retour par return, et Rust peut renvoyer l’expression finale sans point-virgule.",
+    "tags": [
+      "functions",
+      "return_value"
+    ],
+    "variant_group": "cr_return_value",
+    "standard": "C17 / Rust 2021"
+  },
+  {
+    "id": "CR-0076",
+    "language": "comparison",
+    "topic": "arrays",
+    "subtopic": "bounds",
+    "difficulty": 2,
+    "type": "comparison",
+    "code": "C:\nint a[6] = {0}; a[6] = 36;\nRust:\nlet a = vec![0; 6]; println!(\"{}\", a[6]);",
+    "question": "Quelle comparaison est exacte ?",
+    "options": [
+      "Le C est toujours détecté à la compilation",
+      "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+      "Les deux affichent zéro",
+      "Les deux agrandissent le tableau"
+    ],
+    "correct_answer": 1,
+    "correct_option": "En C l’écriture hors limites est indéfinie ; en Rust le Vec déclenche un panic",
+    "explanation": "En C, l’indice égal à la longueur dépasse le tableau : comportement indéfini. En Rust, l’indexation d’un Vec vérifie les limites et panique.",
+    "tags": [
+      "arrays",
+      "bounds"
+    ],
+    "variant_group": "cr_bounds",
+    "standard": "C17 / Rust 2021"
+  }
+]

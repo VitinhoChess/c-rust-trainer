@@ -1,0 +1,57 @@
+<!doctype html><meta charset="utf-8"><title>Vérification de l’atelier</title>
+<style>body{margin:0}iframe{width:100vw;height:100vh;border:0}#result{position:fixed;top:0;background:white;z-index:99;font:12px monospace;max-height:160px;overflow:auto}</style>
+<pre id="result">RUNNING</pre><iframe id="app" title="Atelier en test"></iframe>
+<script type="module">
+const frame = document.querySelector('#app'), result = document.querySelector('#result');
+const checks = [];
+function check(condition, message) { if (!condition) throw Error(message); checks.push(message); }
+async function waitFor(fn) { for (let i=0;i<150;i++) { if (fn()) return; await new Promise(r=>setTimeout(r,30)); } throw Error('Délai dépassé'); }
+const doc = () => frame.contentDocument;
+const click = selector => { const el = doc().querySelector(selector); if(!el) throw Error('Introuvable : '+selector); el.click(); };
+try {
+  localStorage.removeItem('atelier-c-rust-v1');
+  frame.src='../index.html';
+  await waitFor(()=>doc()?.querySelector('#setup-form'));
+  check(doc().body.textContent.includes('version 0'), 'Version affichée');
+  check(doc().documentElement.scrollWidth <= frame.clientWidth, 'Accueil sans débordement');
+  click('[name="language"][value="comparison"]');
+  const count=doc().querySelector('[name="count"]'); count.value='5'; count.dispatchEvent(new Event('change',{bubbles:true}));
+  doc().querySelector('#setup-form').requestSubmit();
+  check(doc().querySelectorAll('[data-choice]').length===4, 'Séance démarrée avec quatre réponses');
+  check(doc().querySelector('#validate').disabled, 'Validation impossible sans choix');
+  const banks=await fetch('../database/questions_comparison.json').then(r=>r.json());
+  let session=JSON.parse(localStorage.getItem('atelier-c-rust-v1')).session;
+  let q=banks.find(q=>q.id===session.ids[0]);
+  click(`[data-choice="${(q.correct_answer+1)%4}"]`); click('#validate');
+  check(!!doc().querySelector('.feedback.retry'), 'Erreur expliquée');
+  check(doc().documentElement.scrollWidth <= frame.clientWidth, 'Exercice sans débordement');
+  click('#back');
+  check(!!doc().querySelector('#resume'), 'Reprise proposée');
+  click('#resume');
+  check(!!doc().querySelector('.feedback.retry'), 'Réponse conservée à la reprise');
+  click('#validate');
+  frame.contentWindow.location.reload();
+  await waitFor(()=>doc()?.querySelector('#resume'));
+  click('#resume');
+  check(doc().querySelector('.question-counter').textContent.includes('2'), 'Reprise après rechargement');
+  for(let i=1;i<5;i++) {
+    q=banks.find(q=>q.id===session.ids[i]);
+    click(`[data-choice="${q.correct_answer}"]`); click('#validate');
+    check(!!doc().querySelector('.feedback.success'), 'Bonne réponse expliquée '+i);
+    click('#validate');
+  }
+  check(!!doc().querySelector('.results'), 'Bilan affiché');
+  check(doc().querySelector('.score-circle strong').textContent.includes('4'), 'Score exact');
+  click('#review-result');
+  check(doc().querySelector('#review-count').textContent==='1', 'Une erreur à revoir');
+  doc().querySelector('#setup-form').requestSubmit();
+  q=banks.find(q=>q.id===session.ids[0]);
+  click(`[data-choice="${q.correct_answer}"]`); click('#validate'); click('#validate'); click('#finish');
+  check(doc().querySelector('#review-count').textContent==='0', 'Erreur corrigée retirée de la révision');
+  click('[data-view="stats"]');
+  check(doc().querySelector('.stat-card strong').textContent==='1 000', 'Statistiques affichées');
+  check(doc().documentElement.scrollWidth<=frame.clientWidth, 'Progression sans débordement');
+  localStorage.removeItem('atelier-c-rust-v1');
+  result.textContent='PASS\n'+checks.join('\n'); document.documentElement.dataset.test='pass';
+} catch(error) { result.textContent='FAIL\n'+checks.join('\n')+'\n'+error.stack+'\n'+JSON.stringify([...doc().querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>doc().documentElement.clientWidth+1).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right}))); document.documentElement.dataset.test='fail'; }
+</script>
