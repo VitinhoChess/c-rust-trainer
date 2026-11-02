@@ -1,8 +1,8 @@
-# Atelier — C & Rust · version 0.5
+# Atelier — C, C++ & Rust · version 1.0
 
-Site statique d’entraînement et de consolidation des acquis en C et en Rust,
+Site statique d’entraînement et de consolidation des acquis en C, en C++ et en Rust,
 prévu pour Render, relié à un dépôt GitHub, et adapté aux écrans d’iPhone et
-d’iPad. La mention **version 0.5** est visible sur la page principale.
+d’iPad. La mention **version 1.0** est visible sur la page principale.
 
 ## Fonctionnalités
 
@@ -10,17 +10,29 @@ d’iPad. La mention **version 0.5** est visible sur la page principale.
   Le bouton « Paramètres » permet de choisir Système, Clair ou Sombre ; ce choix
   est conservé localement et appliqué dès le chargement.
 
-- Les 1 000 questions de `database/` : 450 C, 450 Rust, 100 comparaisons.
-- Séances de 5, 10, 20 ou 30 questions, filtrées par langage, thématique,
+- 2 100 exercices : 800 C, 500 C++17 et 800 Rust, soit 3 050 questions.
+  Les cinq banques actives sont déclarées dans `BANK_FILES` (`assets/core.js`).
+  Les archives ne sont ni chargées ni copiées dans le site publié.
+- Séances de 5, 10, 20 ou 30 exercices, filtrées par langage, thématique,
   difficulté et type. Si moins de questions correspondent, la séance est réduite.
 - Affichage du code avec numéros de ligne et défilement horizontal.
-- Réponses à choix unique, correction pédagogique après validation et bilan.
-- Révision des dernières réponses incorrectes ; une réussite retire la question
-  de cette liste.
+- Choix uniques (boutons radio) et réponses multiples (cases à cocher).
+- Code partagé ou extraits distincts A/B/C pour les exercices à plusieurs
+  questions, avec leurs repères préservés : répondre
+  à chacune avant de valider ; correction et explication distinctes par question.
+- Une réponse multiple est exacte si toutes les bonnes options, et aucune
+  mauvaise option, sont cochées. Un exercice est réussi si chaque question
+  est réussie. Le bilan détaille aussi le nombre de questions réussies.
+- Révision des exercices dont au moins une question a été manquée ; une réussite
+  complète retire l’exercice de cette liste.
 - Sélection favorisant les familles de notions distinctes et les questions dues.
   Une erreur est immédiatement due ; les réussites successives décalent la
   prochaine échéance de 1, 2, 4, 8, 16 puis 30 jours maximum.
-- Progression par langage et thématique, sauvegarde et reprise de la séance.
+- Progression par langage et thématique, sauvegarde et reprise de la séance,
+  y compris des cases cochées avant validation.
+- Conservation des anciens acquis C/Rust. Les acquis archivés sont conservés
+  dans le stockage mais exclus des compteurs actifs ; une séance comportant un
+  exercice retiré est abandonnée sans effacer les acquis C/Rust.
 
 Les données restent dans `localStorage`, sur le navigateur et l’appareil utilisés.
 Aucun compte, serveur applicatif, compilateur en ligne ou service tiers n’est
@@ -51,8 +63,9 @@ Ou avec npm : `npm test`, `npm run build`, `npm run dev`.
 Le dossier `dist/` contient le site complet prêt à publier. Les données sources
 sont copiées sans modification. Le script de génération recrée uniquement `dist/`.
 
-`tests/core.test.mjs` contrôle les 1 000 questions, les filtres, la diversité des
-familles, la répétition et le calcul de la progression.
+`tests/core.test.mjs` contrôle les 2 100 exercices et leurs 3 050 questions, les filtres, la diversité des
+familles, la notation des choix multiples, la répétition, la migration des
+séances et le calcul de la progression.
 
 Le parcours navigateur se teste avec le serveur local en ouvrant
 `http://localhost:5173/tests/browser.html` **dans un profil de test**. Le résultat
@@ -101,7 +114,10 @@ assets/
 database/
   questions_c.json        450 questions C17
   questions_rust.json     450 questions Rust 2021
-  questions_comparison.json  100 comparaisons
+  questions_c_v2.json     350 exercices C11, 2 questions chacun
+  questions_rust_v2.json  350 exercices Rust, 2 questions chacun
+  questions_cpp_all.json 500 exercices C++17, 750 questions
+  archive/               Banques retirées, exclues du site publié
 scripts/build.mjs        Assemblage statique sans dépendance
 tests/core.test.mjs      Tests de données et de logique
 tests/browser.html       Parcours de vérification navigateur
@@ -111,6 +127,5 @@ INFO_JSON.md             Description de la banque et principes pédagogiques
 ```
 
 Les extraits C peuvent être des fragments destinés à `main` avec les en-têtes
-usuels ; les comparaisons présentent deux extraits distincts. L’interface rappelle
-ce contexte. Les corrections respectent les nuances de la banque, notamment
+usuels. L’interface rappelle ce contexte. Les corrections respectent les nuances de la banque, notamment
 entre comportement indéfini en C, refus de compilation Rust et panic.

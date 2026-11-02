@@ -35,10 +35,9 @@
 [data-theme="dark"] progress,[data-theme="dark"] progress::-webkit-progress-bar{background:#3c4c34}
 [data-theme="dark"] .language-tag{background:#34472a;color:#c1daa1}
 [data-theme="dark"] .language-tag.rust{background:#4a3327;color:#f0c1a4}
-[data-theme="dark"] .language-tag.comparison{background:#3c324d;color:#d0bfe9}
 [data-theme="dark"] .answer{background:var(--paper);color:var(--ink);border-color:var(--line)}
 [data-theme="dark"] .answer-letter{color:var(--secondary);border-color:#58684c}
-[data-theme="dark"] .answer:not(:disabled):hover{background:#2d3c28}
+[data-theme="dark"] .answer:has(input:enabled):hover{background:#2d3c28}
 [data-theme="dark"] .answer[aria-pressed=true]{background:#35492b;border-color:#b4cc90}
 [data-theme="dark"] .answer.correct{background:#2e4428;border-color:#a3c580}
 [data-theme="dark"] .answer.incorrect{background:#493027;border-color:#d59b7f}
@@ -50,3 +49,7 @@
 [data-theme="dark"] .score-circle small,[data-theme="dark"] .score-circle>span{color:var(--secondary)}
 [data-theme="dark"] .result-indicator{color:#e4b77d}
 [data-theme="dark"] .detail-plus,[data-theme="dark"] .loading{color:#bdce9e}
+[data-theme="dark"] .answer.selected:not(.correct):not(.incorrect){background:#35492b;border-color:#b4cc90}
+[data-theme="dark"] .answer-input{accent-color:#b8d18f}
+[data-theme="dark"] .question-part legend{color:var(--ink)}
+[data-theme="dark"] .language-tag.cpp{background:#2b3e53;color:#bfd8f5}
