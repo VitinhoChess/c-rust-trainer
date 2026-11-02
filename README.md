@@ -1,10 +1,14 @@
-# Atelier — C & Rust · version 0
+# Atelier — C & Rust · version 0.5
 
 Site statique d’entraînement et de consolidation des acquis en C et en Rust,
 prévu pour Render, relié à un dépôt GitHub, et adapté aux écrans d’iPhone et
-d’iPad. La mention **version 0** est visible sur la page principale.
+d’iPad. La mention **version 0.5** est visible sur la page principale.
 
 ## Fonctionnalités
+
+- Mode sombre automatique selon le navigateur, actualisé si le système change.
+  Le bouton « Paramètres » permet de choisir Système, Clair ou Sombre ; ce choix
+  est conservé localement et appliqué dès le chargement.
 
 - Les 1 000 questions de `database/` : 450 C, 450 Rust, 100 comparaisons.
 - Séances de 5, 10, 20 ou 30 questions, filtrées par langage, thématique,
@@ -91,6 +95,8 @@ assets/
   core.js                Sélection, répétition et statistiques
   storage.js             Chargement et validation des données locales
   styles.css             Mise en page responsive
+  theme.css              Palette sombre et fenêtre des paramètres
+  theme.js               Préférence et détection du thème système
   favicon.svg            Icône locale
 database/
   questions_c.json        450 questions C17

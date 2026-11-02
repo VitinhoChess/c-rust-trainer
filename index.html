@@ -7,7 +7,9 @@
   <meta name="description" content="Consolidez vos acquis en C et Rust avec 1 000 exercices corrigés, des séances personnalisées et la révision de vos erreurs.">
   <title>Atelier — C & Rust</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script src="assets/theme.js"></script>
   <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/theme.css">
   <script type="module" src="assets/app.js"></script>
 </head>
 <body>
@@ -23,10 +25,21 @@
     <div class="sidebar-bottom"><span class="status-dot"></span> Un peu chaque jour.<p>Les bons réflexes se construisent<br>une question à la fois.</p><div class="standards">C17 <span>·</span> RUST 2021</div></div>
   </aside>
   <div class="workspace">
-    <header class="topbar"><span>Apprendre par la pratique</span><span class="local-badge"><span class="status-dot"></span> Progression sur cet appareil</span></header>
+    <header class="topbar"><span>Apprendre par la pratique</span><button class="settings-button" id="open-settings" aria-haspopup="dialog" aria-controls="settings">⚙ Paramètres</button><span class="local-badge"><span class="status-dot"></span> Progression sur cet appareil</span></header>
     <main id="main" tabindex="-1"><div class="loading" role="status">Chargement de votre atelier…</div></main>
     <footer><span>Comprendre. Pratiquer. Retenir.</span><span>Fait pour apprendre, à votre rythme.</span></footer>
   </div>
+  <dialog id="settings" aria-labelledby="settings-title">
+    <div class="settings-heading"><h2 id="settings-title">Paramètres</h2><form method="dialog"><button class="text-button" aria-label="Fermer les paramètres">Fermer ×</button></form></div>
+    <label class="theme-label" for="theme-choice">Apparence</label>
+    <select id="theme-choice" aria-describedby="theme-description">
+      <option value="system">Système (automatique)</option>
+      <option value="light">Clair</option>
+      <option value="dark">Sombre</option>
+    </select>
+    <p id="theme-description" role="status"></p>
+    <p class="settings-note">Votre choix est enregistré sur cet appareil.</p>
+  </dialog>
   <div id="notice" class="notice" role="status" hidden></div>
   <noscript><p>Activez JavaScript pour accéder aux exercices interactifs.</p></noscript>
 </body>

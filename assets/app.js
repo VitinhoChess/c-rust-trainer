@@ -4,12 +4,28 @@ import { loadState, saveState } from './storage.js';
 const main = document.querySelector('#main');
 const notice = message => { const box = document.querySelector('#notice'); box.textContent = message; box.hidden = false; };
 const state = loadState(notice);
+const settings = document.querySelector('#settings');
+const themeChoice = document.querySelector('#theme-choice');
+function updateThemeSettings() {
+  themeChoice.value = window.atelierTheme.preference;
+  document.querySelector('#theme-description').textContent = window.atelierTheme.preference === 'system'
+    ? window.atelierTheme.detectsSystem
+      ? `Suit le réglage du navigateur : ${document.documentElement.dataset.theme === 'dark' ? 'sombre' : 'clair'}.`
+      : 'Détection du système indisponible. Choisissez Clair ou Sombre.'
+    : `Le thème ${window.atelierTheme.preference === 'dark' ? 'sombre' : 'clair'} est activé.`;
+}
+document.querySelector('#open-settings').addEventListener('click', () => { updateThemeSettings(); settings.showModal(); });
+themeChoice.addEventListener('change', () => {
+  if (!window.atelierTheme.setPreference(themeChoice.value)) notice('Le thème est appliqué pour cette visite, mais son enregistrement sur cet appareil est indisponible.');
+});
+window.addEventListener('atelier-theme-change', updateThemeSettings);
+updateThemeSettings();
 const filters = { language: 'all', topic: 'all', difficulty: 'all', type: 'all', review: false, count: '10' };
 let questions = [], view = 'practice', selected = null;
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const persist = () => saveState(state, notice);
 const option = (value, label, current) => `<option value="${escape(value)}" ${String(value) === String(current) ? 'selected' : ''}>${escape(label)}</option>`;
-const heading = (eyebrow, title, subtitle) => `<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${subtitle}</p></div><span class="version">version 0</span></div>`;
+const heading = (eyebrow, title, subtitle) => `<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${subtitle}</p></div><span class="version">version 0.5</span></div>`;
 function updateNav() {
   document.querySelectorAll('[data-view]').forEach(button => {
     button.classList.toggle('active', button.dataset.view === view);
@@ -64,7 +80,7 @@ function renderSession(focus = true) {
   const answer = session.answers[session.index];
   selected = answer?.choice ?? null;
   updateNav();
-  main.innerHTML = `<div class="session-top"><button class="text-button" id="back">← Mon espace</button><span class="version">version 0</span></div><div class="session-heading"><div><div class="eyebrow">UN RÉFLEXE À LA FOIS</div><h1>À vous de jouer<span>.</span></h1></div><span class="question-counter">Question <b>${session.index + 1}</b> / ${session.ids.length}</span></div><progress class="session-progress" value="${session.answers.length}" max="${session.ids.length}" aria-label="Progression de la séance"></progress><section class="panel question-panel"><div class="question-meta"><span class="language-tag ${q.language}">${escape(LANGUAGE[q.language])}</span><span>${escape(TOPICS[q.topic])}</span><span>Niveau ${q.difficulty}</span><span class="question-id">${q.id}</span></div><div class="exercise-type">${escape(TYPES[q.type])} · ${escape(q.standard)}</div>${codeBlock(q.code, q.standard)}<h2 id="question-title">${escape(q.question)}</h2><div class="answers" role="group" aria-labelledby="question-title">${q.options.map((text, index) => `<button class="answer ${answer ? (index === q.correct_answer ? 'correct' : index === answer.choice ? 'incorrect' : '') : ''}" data-choice="${index}" aria-pressed="${selected === index}" ${answer ? 'disabled' : ''}><span class="answer-letter">${String.fromCharCode(65 + index)}</span><span>${escape(text)}</span>${answer && index === q.correct_answer ? '<span class="answer-mark" aria-label="Bonne réponse">✓</span>' : ''}</button>`).join('')}</div><div id="feedback" aria-live="polite">${answer ? feedback(q, answer) : ''}</div><div class="question-actions"><span>${answer ? 'Un nouveau réflexe en construction.' : 'Prenez le temps de lire chaque ligne.'}</span><button class="button" id="validate" ${!answer ? 'disabled' : ''}>${answer ? session.index + 1 === session.ids.length ? 'Voir le bilan →' : 'Question suivante →' : 'Valider ma réponse'}</button></div></section><p class="snippet-note">${q.language === 'c' ? 'Les extraits C peuvent être placés dans main, avec les en-têtes usuels (stdio.h, stdlib.h, string.h).' : q.language === 'comparison' ? 'Les sections C et Rust sont deux extraits distincts à comparer.' : 'Extraits de référence : Rust 2021.'} Le code est à analyser ; il n’est pas exécuté.</p>`;
+  main.innerHTML = `<div class="session-top"><button class="text-button" id="back">← Mon espace</button><span class="version">version 0.5</span></div><div class="session-heading"><div><div class="eyebrow">UN RÉFLEXE À LA FOIS</div><h1>À vous de jouer<span>.</span></h1></div><span class="question-counter">Question <b>${session.index + 1}</b> / ${session.ids.length}</span></div><progress class="session-progress" value="${session.answers.length}" max="${session.ids.length}" aria-label="Progression de la séance"></progress><section class="panel question-panel"><div class="question-meta"><span class="language-tag ${q.language}">${escape(LANGUAGE[q.language])}</span><span>${escape(TOPICS[q.topic])}</span><span>Niveau ${q.difficulty}</span><span class="question-id">${q.id}</span></div><div class="exercise-type">${escape(TYPES[q.type])} · ${escape(q.standard)}</div>${codeBlock(q.code, q.standard)}<h2 id="question-title">${escape(q.question)}</h2><div class="answers" role="group" aria-labelledby="question-title">${q.options.map((text, index) => `<button class="answer ${answer ? (index === q.correct_answer ? 'correct' : index === answer.choice ? 'incorrect' : '') : ''}" data-choice="${index}" aria-pressed="${selected === index}" ${answer ? 'disabled' : ''}><span class="answer-letter">${String.fromCharCode(65 + index)}</span><span>${escape(text)}</span>${answer && index === q.correct_answer ? '<span class="answer-mark" aria-label="Bonne réponse">✓</span>' : ''}</button>`).join('')}</div><div id="feedback" aria-live="polite">${answer ? feedback(q, answer) : ''}</div><div class="question-actions"><span>${answer ? 'Un nouveau réflexe en construction.' : 'Prenez le temps de lire chaque ligne.'}</span><button class="button" id="validate" ${!answer ? 'disabled' : ''}>${answer ? session.index + 1 === session.ids.length ? 'Voir le bilan →' : 'Question suivante →' : 'Valider ma réponse'}</button></div></section><p class="snippet-note">${q.language === 'c' ? 'Les extraits C peuvent être placés dans main, avec les en-têtes usuels (stdio.h, stdlib.h, string.h).' : q.language === 'comparison' ? 'Les sections C et Rust sont deux extraits distincts à comparer.' : 'Extraits de référence : Rust 2021.'} Le code est à analyser ; il n’est pas exécuté.</p>`;
   document.querySelector('#back').addEventListener('click', render);
   document.querySelectorAll('[data-choice]').forEach(button => button.addEventListener('click', () => {
     if (session.answers[session.index]) return;

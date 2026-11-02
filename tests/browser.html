@@ -7,12 +7,38 @@ const checks = [];
 function check(condition, message) { if (!condition) throw Error(message); checks.push(message); }
 async function waitFor(fn) { for (let i=0;i<150;i++) { if (fn()) return; await new Promise(r=>setTimeout(r,30)); } throw Error('Délai dépassé'); }
 const doc = () => frame.contentDocument;
+async function reloadApp() { await new Promise(resolve => { frame.addEventListener('load', resolve, { once: true }); frame.contentWindow.location.reload(); }); }
 const click = selector => { const el = doc().querySelector(selector); if(!el) throw Error('Introuvable : '+selector); el.click(); };
 try {
   localStorage.removeItem('atelier-c-rust-v1');
+  localStorage.removeItem('atelier-theme-v1');
   frame.src='../index.html';
   await waitFor(()=>doc()?.querySelector('#setup-form'));
-  check(doc().body.textContent.includes('version 0'), 'Version affichée');
+  check(doc().body.textContent.includes('version 0.5'), 'Version 0.5 affichée');
+  const systemTheme = () => frame.contentWindow.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  check(doc().documentElement.dataset.theme === systemTheme(), 'Thème système détecté');
+  click('#open-settings');
+  check(doc().querySelector('#settings').open, 'Paramètres ouverts');
+  const chooseTheme = value => {
+    const select = doc().querySelector('#theme-choice');
+    select.value = value; select.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  chooseTheme('dark');
+  check(doc().documentElement.dataset.theme === 'dark', 'Choix sombre appliqué');
+  check(frame.contentWindow.getComputedStyle(doc().querySelector('.panel')).backgroundColor === 'rgb(32, 42, 34)', 'Palette sombre appliquée aux panneaux');
+  check(doc().querySelector('meta[name="theme-color"]').content === '#171e19', 'Couleur du navigateur sombre');
+  doc().querySelector('#settings').close();
+  await reloadApp();
+  await waitFor(()=>doc()?.querySelector('#setup-form'));
+  check(doc().documentElement.dataset.theme === 'dark', 'Thème mémorisé après rechargement');
+  click('#open-settings');
+  check(doc().querySelector('#theme-choice').value === 'dark', 'Choix mémorisé dans les paramètres');
+  chooseTheme('light');
+  check(doc().documentElement.dataset.theme === 'light', 'Choix clair prioritaire sur le système');
+  chooseTheme('system');
+  check(doc().documentElement.dataset.theme === systemTheme(), 'Retour au thème système');
+  chooseTheme('dark');
+  doc().querySelector('#settings').close();
   check(doc().documentElement.scrollWidth <= frame.clientWidth, 'Accueil sans débordement');
   click('[name="language"][value="comparison"]');
   const count=doc().querySelector('[name="count"]'); count.value='5'; count.dispatchEvent(new Event('change',{bubbles:true}));
@@ -30,7 +56,7 @@ try {
   click('#resume');
   check(!!doc().querySelector('.feedback.retry'), 'Réponse conservée à la reprise');
   click('#validate');
-  frame.contentWindow.location.reload();
+  await reloadApp();
   await waitFor(()=>doc()?.querySelector('#resume'));
   click('#resume');
   check(doc().querySelector('.question-counter').textContent.includes('2'), 'Reprise après rechargement');
@@ -52,6 +78,7 @@ try {
   check(doc().querySelector('.stat-card strong').textContent==='1 000', 'Statistiques affichées');
   check(doc().documentElement.scrollWidth<=frame.clientWidth, 'Progression sans débordement');
   localStorage.removeItem('atelier-c-rust-v1');
+  localStorage.removeItem('atelier-theme-v1');
   result.textContent='PASS\n'+checks.join('\n'); document.documentElement.dataset.test='pass';
 } catch(error) { result.textContent='FAIL\n'+checks.join('\n')+'\n'+error.stack+'\n'+JSON.stringify([...doc().querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>doc().documentElement.clientWidth+1).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right}))); document.documentElement.dataset.test='fail'; }
 </script>

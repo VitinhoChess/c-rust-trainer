@@ -21,6 +21,7 @@ try:
         run = subprocess.run([
             'chromium', '--headless', '--no-sandbox', '--disable-gpu',
             '--disable-dev-shm-usage', '--virtual-time-budget=15000', '--dump-dom',
+            *(['--force-dark-mode'] if len(sys.argv) > 2 and sys.argv[2] == 'dark' else []),
             '--user-data-dir=' + profile, '--window-size=' + (sys.argv[1] if len(sys.argv) > 1 else '390,844'),
             f'http://127.0.0.1:{server.server_port}/tests/browser.html'
         ], capture_output=True, text=True, timeout=55)
