@@ -30,3 +30,4 @@
 .language-options{grid-template-columns:repeat(4,minmax(0,1fr))}
 .language-tag.cpp{background:#e7eef9;color:#47668e}
 .standards{line-height:1.9}
+.selection-policy{font-size:11px;color:var(--muted);line-height:1.8;margin-top:18px}

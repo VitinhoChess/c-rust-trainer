@@ -9,6 +9,8 @@ export function loadState(onError) {
     if (!raw) return { version: 1, records: {}, session: null };
     const data = JSON.parse(raw);
     if (!validState(data)) throw new Error('Invalid saved data');
+    data.exposures = data.exposures && typeof data.exposures === 'object' && !Array.isArray(data.exposures) ? Object.fromEntries(Object.entries(data.exposures).filter(([,e]) => e && typeof e.last_seen_at === 'string' && Number.isFinite(Date.parse(e.last_seen_at)) && Number.isInteger(e.seen_count) && e.seen_count > 0)) : {};
+    data.history = Array.isArray(data.history) ? data.history.filter(e => e && typeof e.id === 'string' && typeof e.variant_group === 'string' && typeof e.last_seen_at === 'string' && Number.isFinite(Date.parse(e.last_seen_at))).slice(-500) : [];
     return data;
   } catch { onError('La sauvegarde locale est indisponible ou illisible. Vous pouvez continuer cette séance.'); return { version: 1, records: {}, session: null }; }
 }

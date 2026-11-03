@@ -1,6 +1,6 @@
-export const BANK_FILES = ['questions_c.json', 'questions_rust.json', 'questions_c_v2.json', 'questions_rust_v2.json', 'questions_cpp_all.json'];
+export const BANK_FILES = ['questions_c.json', 'questions_cpp.json', 'questions_rust.json'];
 export const LANGUAGE = { all: 'Tous les langages', c: 'C', cpp: 'C++', rust: 'Rust' };
-export const TOPICS = { structures: 'Structures', memory: 'Mémoire', arrays: 'Tableaux', functions: 'Fonctions', strings: 'Chaînes de caractères', pointers: 'Pointeurs', borrowing: 'Emprunts', variables: 'Variables', control_flow: 'Conditions', ownership: 'Propriété', loops: 'Boucles', collections: 'Collections', logic: 'Logique', enum: 'Énumérations', files: 'Fichiers', algorithms: 'Algorithmes', references: 'Références', const: 'Qualification const', vector: 'Vecteurs (std::vector)', classes: 'Classes' };
+export const TOPICS = { structures: 'Structures', memory: 'Mémoire', arrays: 'Tableaux', functions: 'Fonctions', strings: 'Chaînes de caractères', pointers: 'Pointeurs', borrowing: 'Emprunts', variables: 'Variables', control_flow: 'Conditions', ownership: 'Propriété', loops: 'Boucles', collections: 'Collections', logic: 'Logique', enum: 'Énumérations', files: 'Fichiers', algorithms: 'Algorithmes', references: 'Références', const: 'Qualification const', vector: 'Vecteurs (std::vector)', classes: 'Classes', concurrency: 'Concurrence', lifetimes: 'Durées de vie', generics: 'Généricité et traits', exceptions: 'Exceptions' };
 export const TYPES = { output: 'Résultat du code', compilation: 'Compilation', behavior: 'Comportement', code_review: 'Analyse de code', repair: 'Correction de code', concept: 'Concept', prediction: 'Prédire le résultat', multi_question: 'Plusieurs questions', single_choice: 'Réponse unique', multiple_choice: 'Réponses multiples' };
 
 // Nested questions are authoritative: the legacy fields on v2 exercises repeat Q1.
@@ -11,7 +11,7 @@ export function normalizeQuestions(banks) {
     ids.add(source.id);
     const items = (source.questions?.length ? source.questions : [source]).map((part, index) => {
       const answers = part.correct_answers ?? [part.correct_answer];
-      const item = { id: part.id || `${source.id}-Q${index + 1}`, prompt: part.prompt || part.question, kind: part.type === 'multiple_choice' ? 'multiple_choice' : 'single_choice', options: part.options, answers, explanation: part.explanation };
+      const item = { id: part.id || `${source.id}-Q${index + 1}`, prompt: part.prompt || part.question, kind: part.type === 'multiple_choice' ? 'multiple_choice' : 'single_choice', options: part.options, answers, explanation: part.explanation, last_seen_at: part.last_seen_at ?? null };
       if (!item.prompt || !item.explanation || !Array.isArray(item.options) || item.options.length < 2 || !Array.isArray(answers) || !answers.length || new Set(answers).size !== answers.length || answers.some(n => !Number.isInteger(n) || n < 0 || n >= item.options.length) || (item.kind === 'single_choice' && answers.length !== 1)) throw new Error('Invalid question: ' + item.id);
       return item;
     });
@@ -45,7 +45,12 @@ export function restoreSession(session, exercises) {
   }
   const current = byId.get(session.ids[session.index]);
   const draft = current && validSelections(current, session.draft) ? session.draft : null;
-  return { ids: session.ids, answers, index: session.index, draft };
+  const optionOrders = {};
+  for (const id of session.ids) {
+    const exercise = byId.get(id), saved = session.optionOrders?.[id];
+    if (Array.isArray(saved) && saved.length === exercise.items.length && saved.every((order,i) => Array.isArray(order) && order.length === exercise.items[i].options.length && new Set(order).size === order.length && order.every(n => Number.isInteger(n) && n >= 0 && n < order.length))) optionOrders[id] = saved;
+  }
+  return { ids: session.ids, answers, index: session.index, draft, optionOrders, presented: Array.isArray(session.presented) ? session.presented.filter(id => session.ids.includes(id)) : [] };
 }
 export function filterQuestions(questions, filters, records = {}) {
   return questions.filter(q => (filters.language === 'all' || q.language === filters.language)
@@ -54,15 +59,67 @@ export function filterQuestions(questions, filters, records = {}) {
     && (filters.type === 'all' || q.type === filters.type || q.items?.some(item => item.kind === filters.type))
     && (!filters.review || records[q.id]?.lastCorrect === false));
 }
-export function selectQuestions(pool, count, records = {}, random = Math.random, now = Date.now()) {
-  const ranked = pool.map(q => ({ q, noise: random(), priority: records[q.id] ? (records[q.id].due <= now ? 0 : 2) : 1 }))
-    .sort((a, b) => a.priority - b.priority || a.noise - b.noise);
-  const selected = [], remaining = [], groups = new Set();
-  for (const { q } of ranked) {
-    if (!groups.has(q.variant_group)) { selected.push(q); groups.add(q.variant_group); }
-    else remaining.push(q);
+export const RECENT_WINDOW_MS = 7 * 86400000;
+export const MAX_REPEAT_RATE = 0.2;
+export const RECENT_FAMILY_COUNT = 10;
+const seenTime = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) ? Date.parse(value) : 0;
+
+export function planSession(pool, count, records = {}, exposures = {}, history = [], now = Date.now(), random = Math.random) {
+  const requested = Math.max(0, Math.floor(Number(count) || 0));
+  const groups = new Set(pool.map(q => q.variant_group));
+  const recentFamilies = new Set();
+  for (const event of [...history].reverse()) {
+    if (recentFamilies.size >= RECENT_FAMILY_COUNT) break;
+    const time = seenTime(event.last_seen_at);
+    if (groups.has(event.variant_group) && time > 0 && time > now - RECENT_WINDOW_MS) recentFamilies.add(event.variant_group);
   }
-  return selected.concat(remaining).slice(0, count);
+  const ranked = pool.map(q => {
+    const record = records[q.id];
+    const timestamp = seenTime(exposures[q.id]?.last_seen_at ?? q.last_seen_at);
+    const recent = (timestamp > 0 && timestamp > now - RECENT_WINDOW_MS) || recentFamilies.has(q.variant_group);
+    const priority = record ? (record.due <= now ? 0 : 2) : 1;
+    return { q, recent, priority, noise: random() };
+  }).sort((a,b) => a.priority-b.priority || a.noise-b.noise);
+  const selected = [], used = new Set(), ids = new Set();
+  for (const {q,recent} of ranked) {
+    if (selected.length >= requested) break;
+    if (!recent && !used.has(q.variant_group)) {
+      selected.push(q); used.add(q.variant_group); ids.add(q.id);
+    }
+  }
+  const freshCount = selected.length;
+  // r/(fresh+r) <= .2 implies r <= floor(fresh/4). Never relax this cap.
+  const budget = Math.min(requested-freshCount, Math.floor(freshCount/4));
+  let repeatedCount = 0;
+  for (const {q} of ranked) {
+    if (repeatedCount >= budget) break;
+    if (!ids.has(q.id)) { selected.push(q); ids.add(q.id); repeatedCount++; }
+  }
+  // Do not put every repeat at the end; shuffle the complete, capped selection.
+  const questions = shuffle(selected, random);
+  return { questions, requested, freshCount, repeatedCount, limited: questions.length < requested, repeatRate: questions.length ? repeatedCount/questions.length : 0 };
+}
+export function shuffle(values, random = Math.random) {
+  const result = [...values];
+  for (let i=result.length-1; i>0; i--) {
+    const j=Math.floor(random()*(i+1));
+    [result[i],result[j]]=[result[j],result[i]];
+  }
+  return result;
+}
+export function selectQuestions(pool, count, records = {}, random = Math.random, now = Date.now()) {
+  return planSession(pool, count, records, {}, [], now, random).questions;
+}
+export function recordPresentation(state, exercise, now = Date.now()) {
+  const timestamp = new Date(now).toISOString();
+  state.exposures ??= {};
+  state.history ??= [];
+  const previous = state.exposures[exercise.id];
+  state.exposures[exercise.id] = { last_seen_at: timestamp, seen_count: (previous?.seen_count || 0)+1 };
+  state.history.push({ id: exercise.id, variant_group: exercise.variant_group, language: exercise.language, last_seen_at: timestamp });
+  state.history = state.history.slice(-500);
+  exercise.last_seen_at = timestamp;
+  for (const item of exercise.items) item.last_seen_at = timestamp;
 }
 export function recordAnswer(previous, correct, now = Date.now()) {
   const streak = correct ? (previous?.streak || 0) + 1 : 0;

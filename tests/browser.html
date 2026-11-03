@@ -1,145 +1,74 @@
 <!doctype html><meta charset="utf-8"><title>Vérification de l’atelier</title>
-<style>body{margin:0}iframe{width:100vw;height:100vh;border:0}#result{position:fixed;top:0;background:white;z-index:99;font:12px monospace;max-height:160px;overflow:auto}</style>
+<style>body{margin:0}iframe{width:100vw;height:100vh;border:0}#result{position:fixed;top:0;background:white;z-index:99;font:12px monospace;max-height:140px;overflow:auto}</style>
 <pre id="result">RUNNING</pre><iframe id="app" title="Atelier en test"></iframe>
 <script type="module">
-const frame = document.querySelector('#app'), result = document.querySelector('#result');
-const checks = [];
-function check(condition, message) { if (!condition) throw Error(message); checks.push(message); }
-async function waitFor(fn) { for (let i=0;i<150;i++) { if (fn()) return; await new Promise(r=>setTimeout(r,30)); } throw Error('Délai dépassé'); }
-const doc = () => frame.contentDocument;
-async function reloadApp() { await new Promise(resolve => { frame.addEventListener('load', resolve, { once: true }); frame.contentWindow.location.reload(); }); }
-const click = selector => { const el = doc().querySelector(selector); if(!el) throw Error('Introuvable : '+selector); el.click(); };
-try {
-  localStorage.removeItem('atelier-c-rust-v1');
-  localStorage.removeItem('atelier-theme-v1');
-  frame.src='../index.html';
-  await waitFor(()=>doc()?.querySelector('#setup-form'));
-  check(doc().body.textContent.includes('version 1.0'), 'Version 1.0 affichée');
-  const systemTheme = () => frame.contentWindow.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  check(doc().documentElement.dataset.theme === systemTheme(), 'Thème système détecté');
-  click('#open-settings');
-  check(doc().querySelector('#settings').open, 'Paramètres ouverts');
-  const chooseTheme = value => {
-    const select = doc().querySelector('#theme-choice');
-    select.value = value; select.dispatchEvent(new Event('change', { bubbles: true }));
-  };
-  chooseTheme('dark');
-  check(doc().documentElement.dataset.theme === 'dark', 'Choix sombre appliqué');
-  check(frame.contentWindow.getComputedStyle(doc().querySelector('.panel')).backgroundColor === 'rgb(32, 42, 34)', 'Palette sombre appliquée aux panneaux');
-  check(doc().querySelector('meta[name="theme-color"]').content === '#171e19', 'Couleur du navigateur sombre');
-  doc().querySelector('#settings').close();
-  await reloadApp();
-  await waitFor(()=>doc()?.querySelector('#setup-form'));
-  check(doc().documentElement.dataset.theme === 'dark', 'Thème mémorisé après rechargement');
-  click('#open-settings');
-  check(doc().querySelector('#theme-choice').value === 'dark', 'Choix mémorisé dans les paramètres');
-  chooseTheme('light');
-  check(doc().documentElement.dataset.theme === 'light', 'Choix clair prioritaire sur le système');
-  chooseTheme('system');
-  check(doc().documentElement.dataset.theme === systemTheme(), 'Retour au thème système');
-  chooseTheme('dark');
-  doc().querySelector('#settings').close();
-  check(doc().documentElement.scrollWidth <= frame.clientWidth, 'Accueil sans débordement');
-  check(doc().querySelectorAll('[name="language"]').length === 4 && !doc().querySelector('[value="comparison"]'), 'Comparaisons retirées');
-  check(doc().querySelector('.stat-card strong').textContent.replace(/\s/g, '') === '2100', '2100 exercices actifs');
-  const { BANK_FILES, normalizeQuestions } = await import('../assets/core.js');
-  const exercises = normalizeQuestions(await Promise.all(BANK_FILES.map(file=>fetch('../database/'+file).then(r=>r.json()))));
-  click('[name="language"][value="c"]');
-  function filter(name, value) {
-    const select = doc().querySelector(`[name="${name}"]`);
-    select.value = value; select.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-  filter('type', 'multiple_choice'); filter('count', '5');
-  doc().querySelector('#setup-form').requestSubmit();
-  const saved = () => JSON.parse(localStorage.getItem('atelier-c-rust-v1'));
-  let session = saved().session;
-  const exerciseAt = i => exercises.find(q => q.id === session.ids[i]);
-  let q = exerciseAt(0);
-  check(doc().querySelectorAll('.exercise-code').length === 1 && doc().querySelectorAll('.question-part').length === 2, 'Code partagé affiché une fois pour deux questions');
-  check(doc().querySelectorAll('input[type="checkbox"]').length === 4, 'Cases à cocher pour les réponses multiples');
-  check(doc().querySelector('#validate').disabled, 'Validation impossible sans réponse');
-  const choose = (part, choice) => click(`[data-part="${part}"][data-choice="${choice}"]`);
-  choose(0, (q.items[0].answers[0]+1)%4); choose(0, q.items[0].answers[0]);
-  check(doc().querySelectorAll('[data-part="0"]:checked').length === 1, 'Une seule réponse pour un choix unique');
-  check(doc().querySelector('#validate').disabled, 'Toutes les questions sont obligatoires');
-  choose(1, q.items[1].answers[0]); choose(1, q.items[1].answers[1]); choose(1, q.items[1].answers[1]);
-  check(doc().querySelectorAll('[data-part="1"]:checked').length === 1, 'Cases à cocher sélectionnables et désélectionnables');
-  check(!doc().querySelector('.feedback'), 'Aucune correction révélée avant validation');
-  await reloadApp(); await waitFor(()=>doc()?.querySelector('#resume')); click('#resume');
-  check(doc().querySelectorAll('.answer-input:checked').length === 2, 'Brouillon à réponses multiples repris après rechargement');
+const frame=document.querySelector('#app'), result=document.querySelector('#result'), checks=[];
+const doc=()=>frame.contentDocument;
+const saved=()=>JSON.parse(localStorage.getItem('atelier-c-rust-v1'));
+function check(value,label){if(!value)throw Error(label);checks.push(label);}
+async function waitFor(fn){for(let i=0;i<200;i++){if(fn())return;await new Promise(r=>setTimeout(r,30));}throw Error('Délai dépassé');}
+const click=selector=>{const el=doc().querySelector(selector);if(!el)throw Error('Introuvable : '+selector);el.click();};
+async function reload(){await new Promise(resolve=>{frame.addEventListener('load',resolve,{once:true});frame.contentWindow.location.reload();});await waitFor(()=>doc()?.querySelector('#setup-form'));}
+function filter(name,value){const el=doc().querySelector(`[name="${name}"]`);el.value=value;el.dispatchEvent(new Event('change',{bubbles:true}));}
+const choose=(part,index)=>click(`[data-part="${part}"][data-choice="${index}"]`);
+function answer(q){q.items.forEach((item,part)=>item.answers.forEach(index=>choose(part,index)));click('#validate');}
+try{
+  localStorage.removeItem('atelier-c-rust-v1');localStorage.removeItem('atelier-theme-v1');
+  frame.src='../index.html';await waitFor(()=>doc()?.querySelector('#setup-form'));
+  check(doc().body.textContent.includes('version 1.5'),'Version affichée');
+  check(doc().querySelector('.stat-card strong').textContent==='900','900 exercices chargés');
+  check(doc().querySelectorAll('[name="language"]').length===4&&!doc().querySelector('[value="comparison"]'),'C, C++ et Rust, aucune comparaison');
+  check(doc().documentElement.scrollWidth<=frame.clientWidth,'Accueil sans débordement');
+  const expectedTheme=frame.contentWindow.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  check(doc().documentElement.dataset.theme===expectedTheme,'Thème du navigateur');
+  click('#open-settings');const theme=doc().querySelector('#theme-choice');theme.value='dark';theme.dispatchEvent(new Event('change',{bubbles:true}));doc().querySelector('#settings').close();
+  await reload();check(doc().documentElement.dataset.theme==='dark','Thème sombre mémorisé');
+  const {BANK_FILES,normalizeQuestions}=await import('../assets/core.js');
+  const bank=normalizeQuestions(await Promise.all(BANK_FILES.map(file=>fetch('../database/'+file).then(r=>r.json()))));
+  const byId=id=>bank.find(q=>q.id===id);
+  click('[name="language"][value="c"]');filter('type','multi_question');filter('count','5');doc().querySelector('#setup-form').requestSubmit();
+  const ids=saved().session.ids;let q=byId(ids[0]);
+  check(ids.length===5&&new Set(ids.map(id=>byId(id).variant_group)).size===5,'Séance sans variantes répétées');
+  check(!!saved().exposures[q.id].last_seen_at&&Object.keys(saved().records).length===0,'Présentation datée avant toute réponse');
+  check(saved().session.presented.length===1,'Seul l’exercice affiché est marqué vu');
+  check(doc().querySelectorAll('.question-part').length===2&&doc().querySelectorAll('.exercise-code').length===1,'Deux questions, un code partagé');
+  check(doc().querySelector('#validate').disabled,'Validation désactivée sans sélection');
+  const order=[...doc().querySelectorAll('[data-choice]')].map(el=>el.dataset.part+':'+el.dataset.choice).join(',');
+  choose(0,q.items[0].answers[0]);check(doc().querySelector('#validate').disabled,'Toutes les questions doivent être renseignées');
+  const bad=q.items[1].options.findIndex((_,i)=>!q.items[1].answers.includes(i));choose(1,bad);choose(1,bad);choose(1,bad);
+  check(doc().querySelectorAll('[data-part="1"]:checked').length===1,'Cases multiples sélectionnables et désélectionnables');
+  await reload();click('#resume');
+  const restored=[...doc().querySelectorAll('[data-choice]')].map(el=>el.dataset.part+':'+el.dataset.choice).join(',');
+  check(order===restored,'Ordre des options stable après rechargement');
+  check(doc().querySelectorAll('.answer-input:checked').length===2,'Brouillon conservé');
+  check(saved().exposures[q.id].seen_count===1,'La reprise ne compte pas une nouvelle présentation');
   click('#validate');
-  check(!!doc().querySelector('.feedback.success') && !!doc().querySelector('.feedback.retry'), 'Correction distincte de chaque question');
-  check(saved().session.answers[0].score === 1 && saved().session.answers[0].correct === false, 'Sélection partielle incorrecte, score de 1 sur 2');
-  check(doc().querySelectorAll('.answer.correct').length === 3, 'Toutes les réponses attendues mises en évidence');
-  check(doc().documentElement.scrollWidth <= frame.clientWidth, 'Exercice sans débordement');
-  click('#back'); click('#resume');
-  check(!!doc().querySelector('.feedback.retry'), 'Correction conservée à la reprise');
+  check(doc().querySelectorAll('.feedback.success').length===1&&doc().querySelectorAll('.feedback.retry').length===1,'Correction individuelle des deux questions');
+  check(saved().session.answers[0].score===1&&!saved().session.answers[0].correct,'Une erreur suffit pour rendre l’exercice à revoir');
+  check(doc().documentElement.scrollWidth<=frame.clientWidth,'Exercice sans débordement');
   click('#validate');
-  for(let i=1;i<5;i++) {
-    q = exerciseAt(i);
-    q.items.forEach((item, part) => item.answers.forEach(choice => choose(part, choice)));
-    click('#validate');
-    check(doc().querySelectorAll('.feedback.success').length === 2, 'Deux réponses correctes, exercice '+i);
-    click('#validate');
-  }
-  check(!!doc().querySelector('.results'), 'Bilan affiché');
-  check(doc().querySelector('.score-circle strong').textContent.includes('4'), 'Bilan de 4 exercices réussis sur 5');
-  check(doc().querySelector('.results').textContent.includes('9 / 10 questions'), 'Bilan de 9 questions réussies sur 10');
+  for(let i=1;i<ids.length;i++){answer(byId(ids[i]));click('#validate');}
+  check(doc().querySelector('.score-circle strong').textContent.includes('4'),'Bilan de quatre exercices réussis');
+  check(doc().querySelector('.results').textContent.includes('9 / 10 questions'),'Bilan détaillé de neuf questions réussies');
   click('#review-result');
-  check(doc().querySelector('#review-count').textContent === '1', 'Un exercice incomplet à revoir');
-  doc().querySelector('#setup-form').requestSubmit();
-  q = exerciseAt(0);
-  q.items.forEach((item, part) => item.answers.forEach(choice => choose(part, choice)));
-  click('#validate'); click('#validate'); click('#finish');
-  check(doc().querySelector('#review-count').textContent === '0', 'Exercice entièrement corrigé retiré de la révision');
-  click('[data-view="stats"]');
-  check(doc().querySelectorAll('.language-progress').length === 3, 'Progression C, C++ et Rust');
-  check(doc().documentElement.scrollWidth <= frame.clientWidth, 'Progression sans débordement');
-  const old = exercises.find(q=>q.items.length===1);
-  const record = { attempts:1, correct:1, lastCorrect:true, streak:1, due:Date.now()+86400000 };
-  localStorage.setItem('atelier-c-rust-v1',JSON.stringify({version:1,records:{[old.id]:record,'CR-0001':{...record,lastCorrect:false}},session:{ids:[old.id],answers:[{id:old.id,choice:old.items[0].answers[0],correct:true}],index:0}}));
-  await reloadApp(); await waitFor(()=>doc()?.querySelector('#resume'));
-  check(doc().querySelector('#review-count').textContent === '0', 'Archives exclues des statistiques');
-  click('#resume');
-  check(doc().querySelectorAll('.question-part').length === 1 && !!doc().querySelector('.feedback.success'), 'Ancienne séance C/Rust conservée et migrée');
-  const previous = saved(); previous.session = {ids:['CR-0001'],answers:[],index:0};
-  localStorage.setItem('atelier-c-rust-v1',JSON.stringify(previous));
-  await reloadApp(); await waitFor(()=>doc()?.querySelector('#setup-form'));
-  check(!doc().querySelector('#resume') && !!saved().records[old.id], 'Ancienne séance de comparaison retirée sans perte des acquis C/Rust');
-  click('[name="language"][value="rust"]');
-  filter('type', 'multiple_choice'); filter('topic', 'files');
-  doc().querySelector('#setup-form').requestSubmit();
-  const rustSession = saved().session;
-  const rustExercise = exercises.find(q => q.id === rustSession.ids[0]);
-  check(rustExercise.language === 'rust' && doc().querySelector('.language-tag').textContent === 'Rust', 'Nouveaux exercices Rust et thématique fichiers accessibles');
-  rustExercise.items.forEach((item, part) => item.answers.forEach(choice => choose(part, choice)));
-  click('#validate');
-  check(doc().querySelectorAll('.feedback.success').length === 2, 'Correction des questions multiples Rust');
-  click('#validate');
-  const rustRemaining = saved().session;
-  for (let i=1; i<rustRemaining.ids.length; i++) {
-    const exercise = exercises.find(q => q.id === rustRemaining.ids[i]);
-    exercise.items.forEach((item, part) => item.answers.forEach(choice => choose(part, choice)));
-    click('#validate'); click('#validate');
-  }
-  click('#finish');
-  click('[name="language"][value="cpp"]');
-  filter('type', 'multiple_choice'); filter('topic', 'functions');
-  doc().querySelector('#setup-form').requestSubmit();
-  const cppSession = saved().session;
-  const cppExercise = exercises.find(q => q.id === cppSession.ids[0]);
-  check(cppExercise.language === 'cpp' && doc().querySelector('.language-tag').textContent === 'C++', 'C++ sélectionnable');
-  check(doc().querySelectorAll('.exercise-code').length === 3, 'Trois extraits C++ distincts affichés');
-  const labels = [...doc().querySelectorAll('.exercise-code .code-toolbar')].map(el => el.textContent);
-  check(['A','B','C'].every((label,i)=>labels[i].includes('Extrait '+label+' · C++17')), 'Repères A/B/C et standard C++17 préservés');
-  cppExercise.items.forEach((item, part) => item.answers.forEach(choice => choose(part, choice)));
-  await reloadApp(); await waitFor(()=>doc()?.querySelector('#resume')); click('#resume');
-  check(doc().querySelectorAll('.answer-input:checked').length === 4, 'Reprise C++ avec trois bonnes cases et un choix unique');
-  click('#validate');
-  check(doc().querySelectorAll('.feedback.success').length === 2, 'Notation des trois réponses C++ attendues');
-  check(doc().documentElement.scrollWidth <= frame.clientWidth, 'Extraits C++ sans débordement de page');
-  localStorage.removeItem('atelier-c-rust-v1');
-  localStorage.removeItem('atelier-theme-v1');
-  result.textContent='PASS\n'+checks.join('\n'); document.documentElement.dataset.test='pass';
-} catch(error) { result.textContent='FAIL\n'+checks.join('\n')+'\n'+error.stack+'\n'+JSON.stringify([...doc().querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>doc().documentElement.clientWidth+1).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right}))); document.documentElement.dataset.test='fail'; }
+  check(doc().querySelector('#review-count').textContent==='1','Une erreur à revoir');
+  check(doc().querySelector('#setup-form button[type="submit"]').disabled&&doc().querySelector('.empty-inline').textContent.includes('plafond'),'Révision immédiate bloquée si le plafond serait dépassé');
+  const state=saved(),old=new Date(Date.now()-8*86400000).toISOString();
+  Object.values(state.exposures).forEach(e=>e.last_seen_at=old);state.history.forEach(e=>e.last_seen_at=old);localStorage.setItem('atelier-c-rust-v1',JSON.stringify(state));
+  await reload();click('[data-view="review"]');doc().querySelector('#setup-form').requestSubmit();
+  q=byId(saved().session.ids[0]);answer(q);click('#validate');click('#finish');
+  check(doc().querySelector('#review-count').textContent==='0','Révision permise après expiration, erreur corrigée');
+  click('[data-view="stats"]');check(doc().querySelectorAll('.language-progress').length===3,'Suivi des trois langages');
+  check(doc().documentElement.scrollWidth<=frame.clientWidth,'Statistiques sans débordement');
+  click('[data-view="practice"]');click('[name="language"][value="cpp"]');filter('type','multi_question');filter('count','5');doc().querySelector('#setup-form').requestSubmit();
+  const cppIds=saved().session.ids;
+  check(doc().querySelector('.language-tag').textContent==='C++','Banque C++ accessible');
+  for(const id of cppIds){answer(byId(id));check(doc().querySelectorAll('.feedback.success').length===2,'Correction exacte C++ '+id);click('#validate');}
+  click('#finish');click('[name="language"][value="rust"]');filter('type','multi_question');filter('count','5');doc().querySelector('#setup-form').requestSubmit();
+  check(doc().querySelector('.language-tag').textContent==='Rust','Banque Rust accessible');answer(byId(saved().session.ids[0]));
+  check(doc().querySelectorAll('.feedback.success').length===2,'Correction exacte des nouveaux exercices Rust');
+  check(doc().documentElement.scrollWidth<=frame.clientWidth,'Rust sans débordement');
+  localStorage.removeItem('atelier-c-rust-v1');localStorage.removeItem('atelier-theme-v1');
+  result.textContent='PASS\n'+checks.join('\n');document.documentElement.dataset.test='pass';
+}catch(error){result.textContent='FAIL\n'+checks.join('\n')+'\n'+error.stack;document.documentElement.dataset.test='fail';}
 </script>

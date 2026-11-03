@@ -1,4 +1,4 @@
-import { BANK_FILES, LANGUAGE, TOPICS, TYPES, normalizeQuestions, validSelections, gradeExercise, restoreSession, filterQuestions, selectQuestions, recordAnswer, summarize } from './core.js';
+import { BANK_FILES, LANGUAGE, TOPICS, TYPES, normalizeQuestions, validSelections, gradeExercise, restoreSession, filterQuestions, planSession, shuffle, recordPresentation, recordAnswer, summarize } from './core.js';
 import { loadState, saveState } from './storage.js';
 
 const main = document.querySelector('#main');
@@ -27,7 +27,7 @@ const activeRecords = () => Object.fromEntries(questions.filter(q => state.recor
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const persist = () => saveState(state, notice);
 const option = (value, label, current) => `<option value="${escape(value)}" ${String(value) === String(current) ? 'selected' : ''}>${escape(label)}</option>`;
-const heading = (eyebrow, title, subtitle) => `<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${subtitle}</p></div><span class="version">version 1.0</span></div>`;
+const heading = (eyebrow, title, subtitle) => `<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${subtitle}</p></div><span class="version">version 1.5</span></div>`;
 function updateNav() {
   document.querySelectorAll('[data-view]').forEach(button => {
     button.classList.toggle('active', button.dataset.view === view);
@@ -46,15 +46,16 @@ function home() {
   const review = view === 'review';
   filters.review = review;
   const pool = filterQuestions(questions, filters, state.records);
+  const plan = planSession(pool, Number(filters.count), state.records, state.exposures, state.history);
   const availableTopics = [...new Set(questions.filter(q => filters.language === 'all' || q.language === filters.language).map(q => q.topic))].sort((a, b) => TOPICS[a].localeCompare(TOPICS[b], 'fr'));
   main.innerHTML = heading(review ? 'RÉPÉTER POUR RETENIR' : 'VOTRE RENDEZ-VOUS AVEC LE CODE', review ? 'Les erreurs font progresser<span>.</span>' : 'Un peu de pratique.<br>Beaucoup de déclics<span>.</span>', review ? 'Reprenez les notions à consolider, une question à la fois.' : 'Lisez le code, testez votre intuition et ancrez les bons réflexes en C, en C++ et en Rust.')
     + statsCards() + (state.session ? `<div class="resume-banner"><div><strong>Votre séance vous attend.</strong><span>${state.session.answers.length} exercice(s) sur ${state.session.ids.length} · progression sauvegardée</span></div><button class="button small" id="resume">Reprendre →</button></div>` : '')
     + `<div class="practice-grid"><section class="panel setup"><div class="section-title"><span class="step">01</span><div><h2>${review ? 'Votre séance de révision' : 'Composez votre séance'}</h2><p>Quelques minutes. Une vraie progression.</p></div></div>
       <form id="setup-form"><fieldset><legend>Quel terrain d’entraînement ?</legend><div class="language-options">${Object.entries(LANGUAGE).map(([key, label]) => `<label class="language-choice"><input type="radio" name="language" value="${key}" ${filters.language === key ? 'checked' : ''}><span><b>${key === 'all' ? '〈/〉' : key === 'rust' ? 'Rs' : key === 'cpp' ? 'C++' : 'C'}</b>${label}</span></label>`).join('')}</div></fieldset>
       <div class="form-grid"><label>Thématique<select name="topic">${option('all', 'Toutes les thématiques', filters.topic)}${availableTopics.map(t => option(t, TOPICS[t], filters.topic)).join('')}</select></label><label>Difficulté<select name="difficulty">${option('all', 'Tous les niveaux', filters.difficulty)}${[1, 2, 3].map((n, i) => option(n, ['1 · Fondamentaux', '2 · Intermédiaire', '3 · Approfondissement'][i], filters.difficulty)).join('')}</select></label><label>Type de question<select name="type">${option('all', 'Tous les formats', filters.type)}${Object.entries(TYPES).map(([k, v]) => option(k, v, filters.type)).join('')}</select></label><label>Longueur de la séance<select name="count">${[5, 10, 20, 30].map(n => option(n, n + ' exercices', filters.count)).join('')}</select></label></div>
-      <div class="start-row"><span><b>${pool.length}</b> exercice${pool.length > 1 ? 's' : ''} disponible${pool.length > 1 ? 's' : ''}</span><button class="button" type="submit" ${!pool.length ? 'disabled' : ''}>${review ? 'Réviser' : 'Commencer'} <span aria-hidden="true">→</span></button></div>${!pool.length ? `<p class="empty-inline">${review ? 'Aucune erreur à revoir avec ces filtres. Pratiquez pour enrichir votre suivi.' : 'Aucun exercice ne correspond. Essayez d’autres filtres.'}</p>` : ''}</form></section>
+      <div class="start-row"><span><b>${pool.length}</b> exercice${pool.length > 1 ? 's' : ''} disponible${pool.length > 1 ? 's' : ''}</span><button class="button" type="submit" ${!plan.questions.length ? 'disabled' : ''}>${review ? 'Réviser' : 'Commencer'} <span aria-hidden="true">→</span></button></div>${!pool.length ? `<p class="empty-inline">${review ? 'Aucune erreur à revoir avec ces filtres. Pratiquez pour enrichir votre suivi.' : 'Aucun exercice ne correspond. Essayez d’autres filtres.'}</p>` : ''}<p class="selection-policy">Sur 7 jours, au plus 20 % de répétitions récentes ou de variantes proches. Les dix dernières familles sont espacées.</p>${pool.length && plan.limited ? `<p class="empty-inline" role="status">${plan.questions.length ? `Séance limitée à ${plan.questions.length} exercices avec ces filtres.` : 'Aucune séance possible pour le moment avec ces filtres.'} Le plafond de 20 % est conservé. Élargissez les filtres ou revenez après le délai de sept jours.</p>` : ''}</form></section>
       <aside class="session-aside"><div class="code-preview"><div class="code-toolbar"><span><i></i><i></i><i></i></span><span>un réflexe à la fois</span></div><pre aria-label="Exemple de code Rust"><code><span class="comment">// Comprendre avant d’exécuter.</span>\n<span class="keyword">fn</span> main() {\n    <span class="keyword">let</span> progrès = <span class="string">"un peu chaque jour"</span>;\n    println!(<span class="string">"{}"</span>, progrès);\n}</code></pre><span class="code-caption">LA PRATIQUE FAIT LA DIFFÉRENCE.</span></div><div class="how-it-works"><h3>Moins de théorie. Plus de déclics.</h3><p><span>01</span> Observez un extrait de code.</p><p><span>02</span> Répondez à chaque question.</p><p><span>03</span> Comprenez grâce à la correction.</p></div></aside></div>
-      <div class="pedagogy-note"><span aria-hidden="true">↳</span><p><strong>Apprendre les nuances, pas seulement la syntaxe.</strong> Propriété, emprunts, pointeurs, mémoire… Explorez ce qui rapproche et distingue les deux langages.</p><span class="outline-tag">${new Set(questions.map(q => q.variant_group)).size} familles de notions</span></div>`;
+      <div class="pedagogy-note"><span aria-hidden="true">↳</span><p><strong>Apprendre les nuances, pas seulement la syntaxe.</strong> Propriété, emprunts, pointeurs, mémoire… Explorez les garanties et les pièges des trois langages.</p><span class="outline-tag">${new Set(questions.map(q => q.variant_group)).size} familles de notions</span></div>`;
   document.querySelector('#setup-form').addEventListener('change', event => {
     filters[event.target.name] = event.target.value;
     if (event.target.name === 'language') filters.topic = 'all';
@@ -67,9 +68,10 @@ function home() {
 }
 function start() {
   if (state.session && !window.confirm('Remplacer la séance en cours ? Les réponses déjà enregistrées seront conservées.')) return;
-  const chosen = selectQuestions(filterQuestions(questions, filters, state.records), Number(filters.count), state.records);
+  const plan = planSession(filterQuestions(questions, filters, state.records), Number(filters.count), state.records, state.exposures, state.history);
+  const chosen = plan.questions;
   if (!chosen.length) return;
-  state.session = { ids: chosen.map(q => q.id), answers: [], index: 0, draft: null };
+  state.session = { ids: chosen.map(q => q.id), answers: [], index: 0, draft: null, presented: [], optionOrders: {} };
   persist();
   renderSession();
 }
@@ -79,8 +81,9 @@ function codeBlock(code, language) {
 function exerciseCode(exercise) {
   return exercise.snippets.map(snippet => codeBlock(snippet.code, `${snippet.label ? `Extrait ${snippet.label} · ` : ''}${exercise.standard}`)).join('');
 }
-function answerFields(exercise, answer, selections) {
-  return exercise.items.map((item, part) => `<fieldset class="question-part"><legend>${exercise.items.length > 1 ? `<span class="part-number">Question ${part + 1} / ${exercise.items.length}</span>` : ''}${escape(item.prompt)}</legend><p class="selection-hint">${item.kind === 'multiple_choice' ? 'Plusieurs réponses possibles : cochez toutes les affirmations correctes.' : 'Une seule réponse attendue.'}</p><div class="answers">${item.options.map((text, index) => {
+function answerFields(exercise, answer, selections, orders) {
+  return exercise.items.map((item, part) => `<fieldset class="question-part"><legend>${exercise.items.length > 1 ? `<span class="part-number">Question ${part + 1} / ${exercise.items.length}</span>` : ''}${escape(item.prompt)}</legend><p class="selection-hint">${item.kind === 'multiple_choice' ? 'Une ou plusieurs réponses : cochez toutes les affirmations correctes.' : 'Une seule réponse attendue.'}</p><div class="answers">${orders[part].map(index => {
+    const text = item.options[index];
     const checked = selections[part].includes(index);
     const correct = item.answers.includes(index);
     return `<label class="answer ${checked ? 'selected' : ''} ${answer ? correct ? 'correct' : checked ? 'incorrect' : '' : ''}"><input class="answer-input" type="${item.kind === 'multiple_choice' ? 'checkbox' : 'radio'}" name="part-${part}" data-part="${part}" data-choice="${index}" value="${index}" ${checked ? 'checked' : ''} ${answer ? 'disabled' : ''}><span class="answer-text">${escape(text)}</span>${answer && correct ? `<span class="answer-mark" aria-label="Bonne réponse${checked ? '' : ' non sélectionnée'}">✓${checked ? '' : '<small> à sélectionner</small>'}</span>` : ''}</label>`;
@@ -91,10 +94,18 @@ function renderSession(focus = true) {
   if (!session) return render();
   if (session.index >= session.ids.length) return results();
   const q = questions.find(q => q.id === session.ids[session.index]);
+  session.presented ??= [];
+  if (!session.presented.includes(q.id)) {
+    recordPresentation(state, q);
+    session.presented.push(q.id);
+  }
+  session.optionOrders ??= {};
+  session.optionOrders[q.id] ??= q.items.map(item => shuffle(item.options.map((_,i) => i)));
+  persist();
   const answer = session.answers[session.index];
   const selections = answer?.choices || (validSelections(q, session.draft) ? session.draft : q.items.map(() => []));
   updateNav();
-  main.innerHTML = `<div class="session-top"><button class="text-button" id="back">← Mon espace</button><span class="version">version 1.0</span></div><div class="session-heading"><div><div class="eyebrow">UN RÉFLEXE À LA FOIS</div><h1>À vous de jouer<span>.</span></h1></div><span class="question-counter">Exercice <b>${session.index + 1}</b> / ${session.ids.length}</span></div><progress class="session-progress" value="${session.answers.length}" max="${session.ids.length}" aria-label="Progression de la séance"></progress><section class="panel question-panel"><div class="question-meta"><span class="language-tag ${q.language}">${escape(LANGUAGE[q.language])}</span><span>${escape(TOPICS[q.topic])}</span><span>Niveau ${q.difficulty}</span><span class="question-id">${q.id}</span></div><div class="exercise-type">${escape(TYPES[q.type])} · ${escape(q.standard)}</div>${exerciseCode(q)}${q.items.length > 1 ? `<p class="shared-code-note">${q.snippets.length > 1 ? `${q.snippets.length} extraits distincts, repérés par leur lettre` : 'Un code'}, ${q.items.length} questions. Répondez à toutes les questions avant de valider. Pour réussir l’exercice, chaque réponse doit être exacte.</p>` : ''}${answerFields(q, answer, selections)}<div id="feedback" aria-live="polite">${answer ? feedback(q, answer) : ''}</div><div class="question-actions"><span>${answer ? `${answer.score} / ${answer.total} question(s) réussie(s).` : 'Les corrections apparaissent après validation.'}</span><button class="button" id="validate" ${!answer && !validSelections(q, selections, true) ? 'disabled' : ''}>${answer ? session.index + 1 === session.ids.length ? 'Voir le bilan →' : 'Exercice suivant →' : 'Valider mes réponses'}</button></div></section><p class="snippet-note">${q.language === 'c' ? 'Les extraits C peuvent être placés dans main, avec les en-têtes usuels (stdio.h, stdlib.h, string.h).' : `Extraits de référence : ${escape(q.standard)}.${q.snippets.length > 1 ? ' Chaque extrait se lit séparément.' : ''}`} Le code est à analyser ; il n’est pas exécuté.</p>`;
+  main.innerHTML = `<div class="session-top"><button class="text-button" id="back">← Mon espace</button><span class="version">version 1.5</span></div><div class="session-heading"><div><div class="eyebrow">UN RÉFLEXE À LA FOIS</div><h1>À vous de jouer<span>.</span></h1></div><span class="question-counter">Exercice <b>${session.index + 1}</b> / ${session.ids.length}</span></div><progress class="session-progress" value="${session.answers.length}" max="${session.ids.length}" aria-label="Progression de la séance"></progress><section class="panel question-panel"><div class="question-meta"><span class="language-tag ${q.language}">${escape(LANGUAGE[q.language])}</span><span>${escape(TOPICS[q.topic])}</span><span>Niveau ${q.difficulty}</span><span class="question-id">${q.id}</span></div><div class="exercise-type">${escape(TYPES[q.type])} · ${escape(q.standard)}</div>${exerciseCode(q)}${q.items.length > 1 ? `<p class="shared-code-note">${q.snippets.length > 1 ? `${q.snippets.length} extraits distincts, repérés par leur lettre` : 'Un code'}, ${q.items.length} questions. Répondez à toutes les questions avant de valider. Pour réussir l’exercice, chaque réponse doit être exacte.</p>` : ''}${answerFields(q, answer, selections, session.optionOrders[q.id])}<div id="feedback" aria-live="polite">${answer ? feedback(q, answer) : ''}</div><div class="question-actions"><span>${answer ? `${answer.score} / ${answer.total} question(s) réussie(s).` : 'Les corrections apparaissent après validation.'}</span><button class="button" id="validate" ${!answer && !validSelections(q, selections, true) ? 'disabled' : ''}>${answer ? session.index + 1 === session.ids.length ? 'Voir le bilan →' : 'Exercice suivant →' : 'Valider mes réponses'}</button></div></section><p class="snippet-note">${q.language === 'c' ? 'Les extraits C peuvent être placés dans main, avec les en-têtes usuels (stdio.h, stdlib.h, string.h).' : `Extraits de référence : ${escape(q.standard)}.${q.snippets.length > 1 ? ' Chaque extrait se lit séparément.' : ''}`} Le code est à analyser ; il n’est pas exécuté.</p>`;
   document.querySelector('#back').addEventListener('click', render);
   document.querySelectorAll('[data-choice]').forEach(input => input.addEventListener('change', () => {
     if (session.answers[session.index]) return;
